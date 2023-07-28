@@ -1,0 +1,30 @@
+import boto3
+# This line imports the Boto3 library, which is the AWS SDK for Python. It allows you to interact with AWS services using Python.
+
+def extract_volume_name(name):
+ #This line defines a function named extract_volume_name, which takes a single parameter called name.   
+    
+    arn_parts = name.split(':')
+    #This line splits the name parameter using the colon  ':'as a separator. It will break the ARN into different parts and store them in the arn_parts list.
+    volume_id = arn_parts[-1].split('/')[-1]
+#This line retrieves the last part of the ARN by using the -1 index to access the last element in the arn_parts list. Then, it splits that last part using the forward slash '/' as a separator and retrieves the last element again. This is done to extract the actual volume ID from the ARN.
+    return volume_id
+  #  This line returns the extracted volume ID as the result of the extract_volume_name function.
+    
+
+def lambda_handler(event, context):
+    # This line defines the main function lambda_handler, which is the entry point for AWS Lambda.
+    
+    volume_arn = event['resources'][0]
+#This line extracts the volume ARN from the event parameter. The event parameter is passed to the Lambda function when it is triggered by an AWS service. Here, it assumes that the volume ARN is present as the first element in the resources list inside the event.
+    volume_id1 = extract_volume_name(volume_arn)
+
+    # Create an EC2 client, EC2 client will be used to interact with the Amazon EC2 service.
+    ec2_client = boto3.client('ec2')
+    
+    # Modify the volume type to 'gp3'
+    response1 = ec2_client.modify_volume(
+        VolumeId=volume_id1,
+        VolumeType='gp3',
+    )
+    
